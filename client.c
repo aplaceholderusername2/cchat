@@ -2,19 +2,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
 #include <sys/socket.h>
 #include <sys/types.h>
-
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+
+void connect_to_server();
+void *get_message(void *arg);
+int sock;
+int PORT = 5601;
+struct sockaddr_in serverAddr;
+char buffer[1024];
 
 int main(){
-	int sock;
-	int PORT = 5601;
-	struct sockaddr_in serverAddr;
-	char buffer[1024];
 
+	connect_to_server();
+
+	pthread_t t1;
+	pthread_create(&t1, NULL, get_message, NULL);
+	pthread_join(t1, NULL);
+
+	return 0;
+}
+
+void connect_to_server(){
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
@@ -23,12 +35,20 @@ int main(){
 	printf("connecting...");
 	connect(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	printf("connected.");
+
+}
+
+void *get_message(void *arg){
+
+	
 	while(1){
-		recv(sock, buffer, sizeof(buffer), 0);
-		printf("%s\n", buffer);
-		for(int i = 0; i < strlen(buffer); i++){
-			buffer[i] = ' ';
+	recv(sock, buffer, sizeof(buffer), 0);
+	fprintf(stderr, "%s\n\n", buffer);
+	fprintf(stderr, "\033[A\033[A");
+	for(int i = 0; i < strlen(buffer); i++){
+		buffer[i] = ' ';
 		}
 	}
-	return 0;
+	
+	return NULL;
 }
