@@ -89,7 +89,6 @@ void *send_message(void *arg){
 int define_port(){
 
 	int port = 5601;
-	
 	fprintf(stderr, "[i]Server port:");
 	scanf("%d", &port);
 
